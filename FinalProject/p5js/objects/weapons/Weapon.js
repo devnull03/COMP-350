@@ -8,7 +8,6 @@ class Weapon {
     this.accuracy = accuracy;
 
     this.ammoInMagazine = magazineSize;
-    this.totalAmmo = magazineSize * 3;
     this.isReloading = false;
     this.lastFireTime = 0;
 
@@ -79,20 +78,25 @@ class Weapon {
         bulletDirection = this.rotateVector(bulletDirection, horizontalAxis, random(-this.spread, this.spread));
       }
       
-      const bullet = {
-        position: position.copy(),
-        velocity: p5.Vector.mult(bulletDirection, this.bulletSpeed),
-        damage: this.damage,
-        size: 3,
-        lifetime: 2000,
-        birthTime: millis()
-      };
-      
-      this.bullets.push(bullet);
+      this.createBullet(position, bulletDirection);
     }
     
     this.ammoInMagazine--;
     this.lastFireTime = millis();
+  }
+
+  createBullet(position, direction) {
+    const bullet = {
+      position: position.copy(),
+      velocity: p5.Vector.mult(direction, this.bulletSpeed),
+      damage: this.damage,
+      size: 3,
+      lifetime: 2000,
+      birthTime: millis()
+    };
+    
+    this.bullets.push(bullet);
+    return bullet;
   }
 
   rotateVector(vector, axis, angle) {
@@ -140,23 +144,24 @@ class Weapon {
   reload() {
     if (this.isReloading) return;
     if (this.ammoInMagazine >= this.magazineSize) return;
-    if (this.totalAmmo <= 0) return;
 
     this.isReloading = true;
     this.reloadStartTime = millis();
+    
+    setTimeout(() => {
+      this.completeReload();
+    }, this.reloadTime * 1000);
   }
 
   completeReload() {
-    const ammoNeeded = this.magazineSize - this.ammoInMagazine;
-    const ammoToLoad = min(ammoNeeded, this.totalAmmo);
-
-    this.ammoInMagazine += ammoToLoad;
-    this.totalAmmo -= ammoToLoad;
+    if (!this.isReloading) return;
+    
+    this.ammoInMagazine = this.magazineSize;
     this.isReloading = false;
   }
 
   addAmmo(amount) {
-    this.totalAmmo += amount;
+    return;
   }
 
   display() {

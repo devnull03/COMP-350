@@ -16,18 +16,20 @@ class Player extends Humanoid {
     super.update();
     
     camera(
-      this.pos.x, this.pos.y, this.pos.z,
+      this.pos.x, this.pos.y, this.pos.z,  // Camera position
       this.pos.x + sin(this.yaw) * cos(this.pitch), 
       this.pos.y + sin(this.pitch), 
-      this.pos.z + cos(this.yaw) * cos(this.pitch),
-      0, 1, 0
+      this.pos.z + cos(this.yaw) * cos(this.pitch),  // Look-at point
+      0, 1, 0  // Up vector
     );
 
     if (this.hasWeapon()) {
       this.getCurrentWeapon().update();
       
       if (this.isFiring) {
-        this.getCurrentWeapon().fire(this.pos, this.getDirection());
+        const firePosition = this.pos.copy();
+        firePosition.y -= 10;
+        this.getCurrentWeapon().fire(firePosition, this.getDirection());
       }
     }
   }

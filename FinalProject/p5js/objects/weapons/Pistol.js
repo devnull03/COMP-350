@@ -1,6 +1,7 @@
 class Pistol extends Weapon {
   constructor() {
-    super("Pistol", 15, 2, 1.5, 10, 0.8);
+    // name, damage, fireRate, reloadTime, magazineSize, accuracy
+    super("Pistol", 15, 300, 1.5, 10, 0.8);
 
     this.modelColor = color(50, 50, 50);
     this.modelScale = 0.8;
@@ -9,12 +10,10 @@ class Pistol extends Weapon {
     this.displayY = 160;
     this.displayZ = -150;
     this.weaponScale = 5;
-    this.barrelLength = 50;
     
-    this.recoilAmount = 0;
-    this.maxRecoil = 15;
-    this.recoilRecoveryRate = 0.8;
-    this.lastFireTime = 0;
+    this.bulletsPerShot = 1;
+    this.spread = 0.05;
+    this.bulletSpeed = 20;
   }
 
   display() {
@@ -114,12 +113,21 @@ class Pistol extends Weapon {
     pop();
   }
 
-  fire() {
-    if (super.fire()) {
-      this.lastFireTime = millis();
-      return true;
+  fire(position, direction) {
+    if (this.isReloading || millis() - this.lastFireTime < this.fireRate) {
+      return false;
     }
-    return false;
+
+    if (this.ammoInMagazine <= 0) {
+      this.reload();
+      return false;
+    }
+
+    const bulletPosition = position.copy(); 
+    super.fire(bulletPosition, direction);
+    
+    this.lastFireTime = millis();
+    return true;
   }
   
   cylinder(radius, height) {
