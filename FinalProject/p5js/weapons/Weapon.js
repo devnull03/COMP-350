@@ -26,6 +26,11 @@ class Weapon {
     this.recoilAmount = 0;
     this.maxRecoil = 15;
     this.recoilRecoveryRate = 0.8;
+
+    this.bullets = [];
+    this.reloadStartTime = 0;
+
+
   }
 
   update() {
@@ -35,9 +40,24 @@ class Weapon {
         this.completeReload();
       }
     }
+    for (let i = this.bullets.length - 1; i >= 0; i--) {
+      let bullet = this.bullets[i];
+
+
+      bullet.pos.add(bullet.vel);
+
+
+      if (millis() - bullet.spawnTime > bullet.lifeSpan) {
+        this.bullets.splice(i, 1);  
+      } else if (bullet.pos.x < -width / 2 || bullet.pos.x > width / 2 ||
+                 bullet.pos.y < -height / 2 || bullet.pos.y > height / 2 ||
+                 bullet.pos.z < -500 || bullet.pos.z > 500) {
+        this.bullets.splice(i, 1);  
+    }
+    }
   }
 
-  fire() {
+  fire(position,direction) {
     // Can't fire if reloading or if not enough time has passed since last shot
     if (this.isReloading) return false;
     if (millis() - this.lastFireTime < 1000 / this.fireRate) return false;
@@ -51,13 +71,42 @@ class Weapon {
     // Fire the weapon
     this.ammoInMagazine--;
     this.lastFireTime = millis();
+    let spread = p5.Vector.random3D();
+    spread.y = 0; // No spread on the Y axis (vertical direction)
+    spread.mult((1 - this.accuracy) * 0.3);  // Adjust spread based on accuracy
 
-    // Calculate hit based on accuracy
-    let didHit = random() <= this.accuracy;
+    // Adjust the final direction with spread and normalize
+    let finalDirection = p5.Vector.add(direction.copy(), spread).normalize();
 
-    console.log(`Fired ${this.name}: Hit? ${didHit}, Ammo left: ${this.ammoInMagazine}`);
+    // Calculate velocity based on final direction
+    let velocity = p5.Vector.mult(finalDirection, 10);  // 10 is bullet speed
+
+    // Create bullet object
+    const bullet = {
+      pos: position.copy(),
+      vel: velocity,
+      size: 5,
+      spawnTime: millis(),
+      lifeSpan: 3000  // Bullet lifespan in milliseconds
+    };
+
+    this.bullets.push(bullet);
+    let didHit = random() <= this.accuracy;  // Check if bullet hits target based on accuracy
+  
     return didHit;
+    
   }
+
+  drawBullets() {
+    for (let bullet of this.bullets) {
+      push();
+      translate(bullet.pos.x, bullet.pos.y, bullet.pos.z);
+      fill(0, 200, 0);
+      sphere(bullet.size);
+      pop();
+    }
+  }
+  
 
   reload() {
     if (this.isReloading) return;
@@ -65,8 +114,8 @@ class Weapon {
     if (this.totalAmmo <= 0) return;
 
     this.isReloading = true;
-    this.lastFireTime = millis();
-    console.log(`Reloading ${this.name}...`);
+    this.reloadStartTime = millis(); 
+
   }
 
   completeReload() {
@@ -77,12 +126,12 @@ class Weapon {
     this.totalAmmo -= ammoToLoad;
     this.isReloading = false;
 
-    console.log(`Reload complete. ${this.ammoInMagazine} in magazine, ${this.totalAmmo} remaining.`);
+   
   }
 
   addAmmo(amount) {
     this.totalAmmo += amount;
-    console.log(`Added ${amount} ammo to ${this.name}. Total: ${this.totalAmmo}`);
+    
   }
 
   display() {
@@ -118,7 +167,12 @@ class Weapon {
       box(20 * this.modelScale, 5 * this.modelScale, 40 * this.modelScale);
     }
 
+    
+
     drawingContext.enable(drawingContext.DEPTH_TEST);
     pop();
+
+    this.drawBullets();
+
   }
 }

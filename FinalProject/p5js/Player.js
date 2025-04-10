@@ -51,7 +51,7 @@ class Player {
     if (this.moveRight) {
       this.velocity.add(p5.Vector.mult(right, -this.speed)); 
     }
-    
+
     // Apply velocity to position
     this.pos.add(this.velocity);
     
@@ -75,10 +75,21 @@ class Player {
       
       // Handle firing
       if (this.isFiring) {
-        this.getCurrentWeapon().fire();
+        this.getCurrentWeapon().fire(this.pos, this.getDirection());
+
       }
+      
     }
   }
+
+  getDirection() {
+    return createVector(
+      sin(this.yaw) * cos(this.pitch),
+      sin(this.pitch),
+      cos(this.yaw) * cos(this.pitch)
+    ).normalize(); 
+  }
+  
   
   resetPosition() {
     // Reset player to center of room
@@ -128,13 +139,20 @@ class Player {
         this.getCurrentWeapon().reload();
       }
     }
+
+    if (this.hasWeapon()) {
+      this.isFiring = true;
+    }
   }
+  
   
   handleKeyReleased(key, keyCode) {
     if (key === 'w' || key === 'W') this.moveForward = false;
     if (key === 's' || key === 'S') this.moveBackward = false;
     if (key === 'a' || key === 'A') this.moveLeft = false;  
 	  if (key === 'd' || key === 'D') this.moveRight = false;
+
+    this.isFiring = false;
   }
 
   // Weapon methods
@@ -214,4 +232,4 @@ class Player {
       gameState.playerDied();
     }
   }
-}
+} 

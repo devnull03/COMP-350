@@ -28,7 +28,7 @@ class GameState {
     textSize(40);
     textAlign(CENTER, CENTER);
     fill(255);
-    text("3D Room Navigation", width/2, height/4);
+    text("3D Doom Game", width/2, height/4);
     
     textSize(20);
     text("Press SPACE to play", width/2, height/2);
