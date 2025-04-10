@@ -4,22 +4,17 @@ class GameState {
     this.showControls = false;
     this.pointerLocked = false;
     
-    // Game stats
     this.playerDeaths = 0;
     this.gameStartTime = 0;
     this.gameTime = 0;
 
-    // Add HUD type option
-    this.hudType = 0; // 0 = classic, 1 = modern
+    this.hudType = 0;
   }
   
   displayMainMenu() {
-    // Reset camera for UI
     camera();
     push();
     
-   
-    // Move to 2D rendering temporarily
     translate(-width/2, -height/2, 0);
     fill(0, 0, 0, 150);
     noStroke();
@@ -39,11 +34,9 @@ class GameState {
   }
   
   displayControls() {
-    // Reset camera for UI
     camera();
     push();
      
-    // Move to 2D rendering temporarily
     translate(-width/2, -height/2, 0);
     fill(0, 0, 0, 150);
     noStroke();
@@ -55,18 +48,15 @@ class GameState {
     text("Controls", width/2, height/4);
     
     textSize(16);
-    // Movement controls
     text("W/S: Move forward/backward", width/2, height/2 - 80);
     text("A/D: Move left/right", width/2, height/2 - 60);
     text("Mouse: Look around", width/2, height/2 - 40);
     
-    // Weapon controls
     text("Mouse click: Fire weapon", width/2, height/2 - 10);
     text("R: Reload weapon", width/2, height/2 + 10);
     text("1: BFG, 2: Pistol", width/2, height/2 + 30);
     text("Q/E: Previous/next weapon", width/2, height/2 + 50);
     
-    // General controls
     text("ESC: Pause game", width/2, height/2 + 80);
     text("Press C to return", width/2, height/2 + 120);
     
@@ -96,9 +86,9 @@ class GameState {
     text(`X: ${player.pos.x.toFixed(1)} Y: ${player.pos.y.toFixed(1)} Z: ${player.pos.z.toFixed(1)}`, 10, 10);
     
     textSize(16);
-    fill(255, 0, 0); // Red for health
+    fill(255, 0, 0);
     text(`HEALTH: ${player.health}`, 10, height - 60);
-    fill(0, 100, 255); // Blue for armor
+    fill(0, 100, 255);
     text(`ARMOR: ${player.armor}`, 10, height - 30);
     
     if (player.hasWeapon()) {
@@ -251,7 +241,6 @@ class GameState {
         document.addEventListener('webkitpointerlockchange', this.handlePointerLockChange.bind(this), false);
         
         canvas.requestPointerLock();
-        console.log("Requesting pointer lock on canvas");
       } else {
         console.error("Canvas element not found");
       }

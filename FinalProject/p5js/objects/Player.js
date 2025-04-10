@@ -2,13 +2,11 @@ class Player extends Humanoid {
   constructor(x, y, z, size, weapons) {
     super(x, y, z, size);
     
-    // Mouse properties
     this.prevMouseX = width / 2;
     this.prevMouseY = height / 2;
     this.sensitivity = 0.003;
     this.speed = 30.0;
     
-    // Weapon handling
     this.weapons = weapons;
     this.currentWeaponIndex = 0;
     this.isFiring = false;
@@ -17,20 +15,17 @@ class Player extends Humanoid {
   update() {
     super.update();
     
-    // Update camera with first-person view
     camera(
-      this.pos.x, this.pos.y, this.pos.z,  // Camera position
+      this.pos.x, this.pos.y, this.pos.z,
       this.pos.x + sin(this.yaw) * cos(this.pitch), 
       this.pos.y + sin(this.pitch), 
-      this.pos.z + cos(this.yaw) * cos(this.pitch),  // Look-at point
-      0, 1, 0  // Up vector
+      this.pos.z + cos(this.yaw) * cos(this.pitch),
+      0, 1, 0
     );
 
-    // Update current weapon
     if (this.hasWeapon()) {
       this.getCurrentWeapon().update();
       
-      // Handle firing
       if (this.isFiring) {
         this.getCurrentWeapon().fire(this.pos, this.getDirection());
       }
@@ -40,7 +35,6 @@ class Player extends Humanoid {
   resetPosition() {
     super.resetPosition();
     
-    // Reset mouse tracking
     this.prevMouseX = windowWidth / 2;
     this.prevMouseY = windowHeight / 2;
   }
@@ -48,11 +42,9 @@ class Player extends Humanoid {
   handleMouseLook(movementX, movementY) {
     if (!gameState) return;
     
-    // Update rotation based on mouse movement
     this.yaw -= movementX * this.sensitivity;
-    this.pitch += movementY * this.sensitivity; // INVERTED Y-axis
+    this.pitch += movementY * this.sensitivity;
     
-    // Limit pitch to prevent flipping
     this.pitch = constrain(this.pitch, -PI/2 + 0.1, PI/2 - 0.1);
   }
   
@@ -62,16 +54,13 @@ class Player extends Humanoid {
     if (key === 'a' || key === 'A') this.moveLeft = true;    
     if (key === 'd' || key === 'D') this.moveRight = true;    
 
-    // Weapon switching
     if (key === '1' && this.weapons.length >= 1) this.switchWeapon(0);
     if (key === '2' && this.weapons.length >= 2) this.switchWeapon(1);
     if (key === '3' && this.weapons.length >= 3) this.switchWeapon(2);
     
-    // Next/previous weapon
     if (key === 'q' || key === 'Q') this.prevWeapon();
     if (key === 'e' || key === 'E') this.nextWeapon();
     
-    // Reload weapon
     if (key === 'r' || key === 'R') {
       if (this.hasWeapon()) {
         this.getCurrentWeapon().reload();
@@ -83,12 +72,11 @@ class Player extends Humanoid {
     if (key === 'w' || key === 'W') this.moveForward = false;
     if (key === 's' || key === 'S') this.moveBackward = false;
     if (key === 'a' || key === 'A') this.moveLeft = false;  
-	  if (key === 'd' || key === 'D') this.moveRight = false;
+	if (key === 'd' || key === 'D') this.moveRight = false;
 
     this.isFiring = false;
   }
 
-  // Weapon methods
   hasWeapon() {
     return this.weapons.length > 0;
   }
@@ -102,7 +90,6 @@ class Player extends Humanoid {
   
   addWeapon(weapon) {
     this.weapons.push(weapon);
-    // Switch to the new weapon
     this.currentWeaponIndex = this.weapons.length - 1;
   }
   
@@ -127,7 +114,6 @@ class Player extends Humanoid {
   die() {
     super.die();
     
-    // Notify game state
     if (gameState) {
       gameState.playerDied();
     }

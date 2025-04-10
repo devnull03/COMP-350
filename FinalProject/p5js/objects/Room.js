@@ -6,7 +6,6 @@ class Room {
 
     this.colliders = [];
 
-    // Colors
     this.wallColor = color(200, 200, 200);
     this.tableColor = color(139, 69, 19);
     this.objectColor1 = color(0, 0, 255);
@@ -14,11 +13,10 @@ class Room {
   }
 
   addBoxCollider({ x, y, z, w, h, d }, fillColor) {
-    // Create a collider object with more properties for improved collision detection
     const collider = { 
-      x, y, z,  // Center position
-      w, h, d,  // Dimensions
-      minX: x - w/2, maxX: x + w/2,  // Bounds for AABB collision
+      x, y, z,
+      w, h, d,
+      minX: x - w/2, maxX: x + w/2,
       minY: y - h/2, maxY: y + h/2,
       minZ: z - d/2, maxZ: z + d/2,
       fillColor,
@@ -36,7 +34,6 @@ class Room {
     return collider;
   }
 
-  // Check if a point is inside any collider
   checkPointCollision(point) {
     for (const collider of this.colliders) {
       if (point.x >= collider.minX && point.x <= collider.maxX &&
@@ -48,18 +45,14 @@ class Room {
     return null;
   }
   
-  // Check if a sphere (bullet, player) collides with any collider
   checkSphereCollision(position, radius) {
     for (const collider of this.colliders) {
-      // Find the closest point on the box to the sphere
       const closestX = Math.max(collider.minX, Math.min(position.x, collider.maxX));
       const closestY = Math.max(collider.minY, Math.min(position.y, collider.maxY));
       const closestZ = Math.max(collider.minZ, Math.min(position.z, collider.maxZ));
       
-      // Calculate the distance between the sphere's center and the closest point
       const distance = dist(position.x, position.y, position.z, closestX, closestY, closestZ);
       
-      // If the distance is less than the sphere's radius, collision detected
       if (distance < radius) {
         return {
           collider,
@@ -71,7 +64,6 @@ class Room {
     return null;
   }
   
-  // Method for checking bullet collision
   checkBulletCollision(bullet) {
     if (!bullet || !bullet.position) return false;
     
@@ -81,13 +73,11 @@ class Room {
     return result !== null;
   }
   
-  // Method to resolve player collision
   resolvePlayerCollision(player) {
     if (!player) return;
     
     const result = this.checkSphereCollision(player.pos, player.size);
     if (result) {
-      // Push player away from collision
       const pushDirection = result.normal;
       const pushAmount = result.penetration;
       
@@ -104,7 +94,6 @@ class Room {
 
     box(this.width, this.height, this.depth);
 
-    // Reset colliders array before adding new ones
     this.colliders = [];
    
     this.addBoxCollider({
@@ -134,10 +123,8 @@ class Room {
       d: 80
     }, color(0, 0, 255)); 
 
-    // Add boundary walls as colliders
     const wallThickness = 10;
     
-    // Left wall
     this.addBoxCollider({
       x: -this.width / 2,
       y: 0,
@@ -147,7 +134,6 @@ class Room {
       d: this.depth
     }, color(0, 0, 0, 0));
     
-    // Right wall
     this.addBoxCollider({
       x: this.width / 2,
       y: 0,
@@ -157,7 +143,6 @@ class Room {
       d: this.depth
     }, color(0, 0, 0, 0));
     
-    // Front wall
     this.addBoxCollider({
       x: 0,
       y: 0,
@@ -167,7 +152,6 @@ class Room {
       d: wallThickness
     }, color(0, 0, 0, 0));
     
-    // Back wall
     this.addBoxCollider({
       x: 0,
       y: 0,
@@ -177,7 +161,6 @@ class Room {
       d: wallThickness
     }, color(0, 0, 0, 0));
 
-    // Draw the visible walls
     push();
     translate(-this.width / 2, 0, 0);
     rotateY(PI / 2);
@@ -208,7 +191,6 @@ class Room {
     pop();
   }
   
-  // Helper method to get all colliders
   getColliders() {
     return this.colliders;
   }
