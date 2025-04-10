@@ -3,6 +3,7 @@ let room;
 let gameState;
 let myFont;
 let bullets = [];
+let environmentHandler;
 
 let BFG_model;
 let Shotgun_model;
@@ -41,6 +42,7 @@ function setup() {
   player = new Player(0, 0, 0, 20, playerWeapons);
   room = new Room(5000, 1000, 5000);
   gameState = new GameState();
+  environmentHandler = new EnvironmentHandler();
 
   textFont(myFont);
 
@@ -50,6 +52,11 @@ function setup() {
   document.addEventListener('pointerlockchange', pointerLockChange);
   document.addEventListener('mozpointerlockchange', pointerLockChange);
   document.addEventListener('webkitpointerlockchange', pointerLockChange);
+
+  // Create some enemies and add them to the environment handler
+  environmentHandler.addEnemy(new Enemy(-500, 0, -500, 30, 'basic'));
+  environmentHandler.addEnemy(new Enemy(500, 0, 500, 25, 'fast'));
+  environmentHandler.addEnemy(new Enemy(0, 0, -1000, 40, 'heavy'));
 
   console.log("Setup complete");
 }
@@ -68,13 +75,25 @@ function draw() {
     player.update();
     room.display();
 
+    // Update and display enemies through environment handler
+    environmentHandler.update();
+    environmentHandler.display();
+
     if (player.isFiring && player.hasWeapon()) {
-      player.getCurrentWeapon().fire(player.getDirection());
+      // Make sure we pass both position and direction to the fire method
+      player.getCurrentWeapon().fire(player.pos, player.getDirection());
     }
 
     player.getCurrentWeapon().update();
     player.getCurrentWeapon().drawBullets();
     
+    // Check for all collisions using the combined method
+    environmentHandler.checkAllCollisions(player);
+
+    // Clean up dead enemies periodically
+    if (frameCount % 300 === 0) { // Every 5 seconds at 60 FPS
+      environmentHandler.cleanupDeadEnemies();
+    }
 
     pop();
 
@@ -120,14 +139,16 @@ function mouseMoved() {
 }
 
 function mousePressed() {
-
   if (typeof gameState !== 'undefined' && gameState !== null) {
     if (gameState.isPaused && !gameState.showControls) {
       gameState.isPaused = false;
       gameState.requestPointerLock();
     } else if (!gameState.isPaused && gameState.pointerLocked) {
       if (typeof player !== 'undefined' && player !== null) {
-        player.isFiring = true;
+        // Only set firing to true if it was actually a left mouse click (button 0)
+        if (mouseButton === LEFT) {
+          player.isFiring = true;
+        }
       }
     }
   }
@@ -136,7 +157,10 @@ function mousePressed() {
 
 function mouseReleased() {
   if (typeof player !== 'undefined' && player !== null) {
-    player.isFiring = false;
+    // Only stop firing if it was a left mouse release
+    if (mouseButton === LEFT) {
+      player.isFiring = false;
+    }
   }
   return false;
 }
