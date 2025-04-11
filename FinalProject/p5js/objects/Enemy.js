@@ -1,21 +1,30 @@
 class Enemy extends Humanoid {
-  constructor(x, y, z, size, enemyType = 'basic') {
+  constructor(x, z, size, enemyModel = null, enemyType = 'basic') {
+    const y = size / 2;
     super(x, y, z, size);
     
     this.enemyType = enemyType;
-    this.speed = 2.0;
+    this.speed = 10;
     this.detectionRange = 500;
     this.attackRange = 50;
     this.attackDamage = 10;
     this.attackCooldown = 1000;
     this.lastAttackTime = 0;
     this.active = true;
+    this.model = enemyModel;
+    this.modelScale = 3;
+    this.modelYOffset = 0; 
+    this.modelRotation = 0; 
+    
+    this.baseModelWidth = 40; 
+    this.baseModelHeight = 700;
+    this.baseModelDepth = 40; 
     
     this.state = 'idle';
     
     switch (enemyType) {
       case 'fast':
-        this.speed = 4.0;
+        this.speed = 20;
         this.health = 50;
         this.attackDamage = 5;
         this.attackCooldown = 500;
@@ -31,6 +40,10 @@ class Enemy extends Humanoid {
       default:
         this.color = color(255, 0, 0);
         break;
+    }
+    
+    if (this.model) {
+      this.model.materialColor = this.color;
     }
   }
   
@@ -107,29 +120,45 @@ class Enemy extends Humanoid {
     push();
     translate(this.pos.x, this.pos.y, this.pos.z);
     rotateY(this.yaw);
+    scale(this.modelScale);
     
-    fill(this.color);
-    noStroke();
-    
-    box(this.size, this.size * 2, this.size);
-    
-    this.displayHealthBar();
+    if (this.model) {
+      push();
+      rotateX(-PI/2);
+      rotateZ(PI);
+      translate(0, this.modelYOffset, 0);
+
+      noStroke();
+      fill(this.color);
+      specularMaterial(this.color);
+      shininess(5);
+      model(this.model);
+      
+      pop();
+      
+      this.displayHealthBar();
+    } else {
+      fill(this.color);
+      noStroke();
+      box(this.baseModelWidth, this.baseModelHeight, this.baseModelDepth);
+      this.displayHealthBar();
+    }
     
     pop();
   }
   
   displayHealthBar() {
     push();
-    translate(0, -this.size * 1.5, 0);
+    translate(0, -this.baseModelHeight * this.modelScale * 1.5, 0);
     rotateY(-this.yaw);
     
     fill(100);
     noStroke();
-    rect(-this.size, -5, this.size * 2, 5);
+    rect(-this.baseModelWidth * this.modelScale, -5, this.baseModelWidth * this.modelScale * 2, 5); // Updated to use scaled width
     
     let healthPercent = this.health / this.maxHealth;
     fill(255 * (1 - healthPercent), 255 * healthPercent, 0);
-    rect(-this.size, -5, this.size * 2 * healthPercent, 5);
+    rect(-this.baseModelWidth * this.modelScale, -5, this.baseModelWidth * this.modelScale * 2 * healthPercent, 5); // Updated to use scaled width
     pop();
   }
   
@@ -179,14 +208,20 @@ class Enemy extends Humanoid {
       return false;
     }
     
-    const bulletSize = bullet.size || 5;
+    const hitboxSize = this.getHitboxSize(); 
     
     let distance = p5.Vector.dist(this.pos, bullet.position);
-    if (distance < this.size + bulletSize) {
+    if (distance < hitboxSize) {
       const bulletDamage = bullet.damage || 10;
       this.takeDamage(bulletDamage);
       return true;
     }
     return false;
+  }
+  
+  getHitboxSize() {
+    return (this.baseModelWidth * this.modelScale + 
+            this.baseModelHeight * this.modelScale + 
+            this.baseModelDepth * this.modelScale) / 3;
   }
 }

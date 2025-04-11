@@ -5,8 +5,12 @@ let myFont;
 let bullets = [];
 let environmentHandler;
 
+// Model variables
 let BFG_model;
 let Shotgun_model;
+let enemy_model;
+let enemyModel;
+let weaponModels = {};
 
 function preload() {
   myFont = loadFont('https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceCodePro-Bold.otf');
@@ -28,6 +32,17 @@ function preload() {
     function () {
       console.error("Error loading Shotgun model");
     });
+  enemy_model = loadModel(
+    'data/bruh_im_dead_fr_fr/bruh_im_dead_fr_fr.obj',
+    true,
+    function () {
+      console.log("Enemy model loaded successfully");
+    },
+    function () {
+      console.error("Error loading Enemy model");
+    });
+
+  // Load models with proper settings
 }
 
 function setup() {
@@ -52,9 +67,14 @@ function setup() {
   document.addEventListener('mozpointerlockchange', pointerLockChange);
   document.addEventListener('webkitpointerlockchange', pointerLockChange);
 
-  environmentHandler.addEnemy(new Enemy(-500, 0, -500, 30, 'basic'));
-  environmentHandler.addEnemy(new Enemy(500, 0, 500, 25, 'fast'));
-  environmentHandler.addEnemy(new Enemy(0, 0, -1000, 40, 'heavy'));
+  environmentHandler.addEnemy(new Enemy(-500, -500, 30, enemy_model, 'basic'));
+  environmentHandler.addEnemy(new Enemy(500, 500, 25, enemy_model, 'fast'));
+  environmentHandler.addEnemy(new Enemy(0, -1000, 40, enemy_model, 'heavy'));
+
+  // Prepare models for rendering
+  if (enemyModel) {
+    ModelUtils.prepareModel(enemyModel);
+  }
 
   console.log("Setup complete");
 }
@@ -82,7 +102,7 @@ function draw() {
 
     player.getCurrentWeapon().update();
     player.getCurrentWeapon().drawBullets();
-    
+
     environmentHandler.checkAllCollisions(player);
 
     if (frameCount % 300 === 0) {

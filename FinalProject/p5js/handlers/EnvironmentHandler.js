@@ -91,7 +91,7 @@ class EnvironmentHandler {
       if (!enemy.active || enemy.health <= 0) continue;
       
       let distance = p5.Vector.dist(player.pos, enemy.pos);
-      if (distance < player.size + enemy.size) {
+      if (distance < player.size + enemy.getHitboxSize()) {
         let pushDirection = p5.Vector.sub(player.pos, enemy.pos).normalize();
         player.pos.add(p5.Vector.mult(pushDirection, 2.0));
       }
