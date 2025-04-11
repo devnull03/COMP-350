@@ -81,6 +81,8 @@ function setup() {
 
 function draw() {
   background(0);
+  console.log(gameState.isPaused, gameState.gameStarted);
+
 
   if (gameState.isPaused) {
     gameState.displayMainMenu();
@@ -152,11 +154,15 @@ function mouseMoved() {
 }
 
 function mousePressed() {
-  if (typeof gameState !== 'undefined' && gameState !== null) {
-    if (gameState.isPaused && !gameState.showControls) {
-      gameState.isPaused = false;
-      gameState.requestPointerLock();
-    } else if (!gameState.isPaused && gameState.pointerLocked) {
+  // Ensure AudioContext is started after user gesture
+  if (typeof userStartAudio === 'function') {
+    userStartAudio();
+  }
+  if (gameState.isPaused) {
+    gameState.handleMousePressed();
+    return false;
+  } else {
+    if (!gameState.isPaused && gameState.pointerLocked) {
       if (typeof player !== 'undefined' && player !== null) {
         if (mouseButton === LEFT) {
           player.isFiring = true;
