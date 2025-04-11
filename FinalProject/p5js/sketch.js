@@ -78,8 +78,6 @@ function setup() {
 
 function draw() {
   background(0);
-  console.log(gameState.isPaused, gameState.gameStarted);
-
 
   if (gameState.isPaused) {
     gameState.displayMainMenu();
