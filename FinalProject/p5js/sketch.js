@@ -5,7 +5,6 @@ let myFont;
 let bullets = [];
 let environmentHandler;
 
-// Model variables
 let BFG_model;
 let Shotgun_model;
 let enemy_model;
@@ -42,7 +41,6 @@ function preload() {
       console.error("Error loading Enemy model");
     });
 
-  // Load models with proper settings
 }
 
 function setup() {
@@ -71,7 +69,6 @@ function setup() {
   environmentHandler.addEnemy(new Enemy(500, 500, 25, enemy_model, 'fast'));
   environmentHandler.addEnemy(new Enemy(0, -1000, 40, enemy_model, 'heavy'));
 
-  // Prepare models for rendering
   if (enemyModel) {
     ModelUtils.prepareModel(enemyModel);
   }
@@ -128,7 +125,13 @@ function draw() {
 function keyPressed() {
   player.handleKeyPressed(key, keyCode);
   gameState.handleKeyPressed(key, keyCode);
-
+  
+  if (key === 'l' || key === 'L') {
+    if (room) {
+      room.toggleLighting();
+    }
+  }
+  
   if (keyCode.toString().endsWith('ARROW')) {
     return false;
   }
@@ -154,10 +157,6 @@ function mouseMoved() {
 }
 
 function mousePressed() {
-  // Ensure AudioContext is started after user gesture
-  if (typeof userStartAudio === 'function') {
-    userStartAudio();
-  }
   if (gameState.isPaused) {
     gameState.handleMousePressed();
     return false;

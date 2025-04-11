@@ -17,7 +17,13 @@ class Weapon {
 
     this.model = model;
     this.modelScale = 4.0;
-    this.modelColor = color(200);
+
+    this.materialColor = color(200, 200, 200);
+    this.specularColor = color(255, 255, 255);
+    this.shininessValue = 30;
+    this.ambientColor = color(50, 50, 50);
+
+    this.isMetallic = true;
 
     this.recoilAmount = 0;
     this.maxRecoil = 15;
@@ -29,6 +35,10 @@ class Weapon {
     this.bulletsPerShot = 1;
     this.spread = 0;
     this.bulletSpeed = 10;
+
+    if (this.model) {
+      this.model.materialColor = this.materialColor;
+    }
   }
 
   update() {
@@ -188,11 +198,35 @@ class Weapon {
       rotateY(PI / 4);
       rotateX(PI / 8);
       scale(this.modelScale);
-
-      ambientLight(255, 0, 0);
+      
+      directionalLight(200, 200, 200, 0, 0, -1);
+      pointLight(255, 255, 255, 0, -50, 100);
+      
+      noStroke();
+      ambientMaterial(this.ambientColor);
+      fill(this.materialColor);
+      
+      if (this.isMetallic) {
+        specularMaterial(this.specularColor);
+        shininess(this.shininessValue);
+      } else {
+        normalMaterial();
+      }
+      
       model(this.model);
+      
+      if (millis() - this.lastFireTime < 100) {
+        push();
+        translate(0, 0, 20);
+        emissiveMaterial(255, 200, 50);
+        sphere(2);
+        pointLight(255, 200, 50, 0, 0, 25);
+        pop();
+      }
     } else {
-      fill(this.modelColor);
+      fill(this.materialColor);
+      specularMaterial(this.specularColor);
+      shininess(this.shininessValue);
       translate(width / 4, height / 3, -50);
       box(20 * this.modelScale, 5 * this.modelScale, 40 * this.modelScale);
     }
